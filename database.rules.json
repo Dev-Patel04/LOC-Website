@@ -1,0 +1,20 @@
+{
+  "rules": {
+    ".read": true,
+    "games": {
+      ".write": "auth != null"
+    },
+    "teams": {
+      ".write": "auth != null"
+    },
+    "players": {
+      ".write": "auth != null"
+    },
+    "gameStats": {
+      ".write": "auth != null"
+    },
+    "recentPlays": {
+      ".write": "auth != null"
+    }
+  }
+}
