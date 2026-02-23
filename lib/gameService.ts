@@ -147,7 +147,7 @@ export interface StatAction {
   gameId: string;
   playerId: string;
   playerName: string;
-  statType: "2pt" | "3pt" | "ft" | "reb" | "ast" | "stl" | "blk" | "foul";
+  statType: "2ptMake" | "2ptMiss" | "3ptMake" | "3ptMiss" | "ftMake" | "ftMiss" | "oreb" | "dreb" | "ast" | "stl" | "blk" | "to" | "pf" | "tf";
   quarter: number;
   timeRemaining: string;
   teamSide: "home" | "away";
@@ -163,14 +163,21 @@ export async function recordStat(action: StatAction): Promise<{ playKey: string 
   let description = "";
 
   switch (action.statType) {
-    case "2pt":
+    case "2ptMake":
       current.pts += 2;
       current.fgm += 1;
       current.fga += 1;
+      current.twoPm += 1;
+      current.twoPa += 1;
       pointsToAdd = 2;
       description = `${action.playerName} made a 2-pt shot`;
       break;
-    case "3pt":
+    case "2ptMiss":
+      current.fga += 1;
+      current.twoPa += 1;
+      description = `${action.playerName} missed a 2-pt shot`;
+      break;
+    case "3ptMake":
       current.pts += 3;
       current.fgm += 1;
       current.fga += 1;
@@ -179,16 +186,31 @@ export async function recordStat(action: StatAction): Promise<{ playKey: string 
       pointsToAdd = 3;
       description = `${action.playerName} made a 3-pt shot`;
       break;
-    case "ft":
+    case "3ptMiss":
+      current.fga += 1;
+      current.threePa += 1;
+      description = `${action.playerName} missed a 3-pt shot`;
+      break;
+    case "ftMake":
       current.pts += 1;
       current.ftm += 1;
       current.fta += 1;
       pointsToAdd = 1;
       description = `${action.playerName} made a free throw`;
       break;
-    case "reb":
+    case "ftMiss":
+      current.fta += 1;
+      description = `${action.playerName} missed a free throw`;
+      break;
+    case "oreb":
+      current.oreb += 1;
       current.reb += 1;
-      description = `${action.playerName} grabbed a rebound`;
+      description = `${action.playerName} grabbed an offensive rebound`;
+      break;
+    case "dreb":
+      current.dreb += 1;
+      current.reb += 1;
+      description = `${action.playerName} grabbed a defensive rebound`;
       break;
     case "ast":
       current.ast += 1;
@@ -202,9 +224,17 @@ export async function recordStat(action: StatAction): Promise<{ playKey: string 
       current.blk += 1;
       description = `${action.playerName} blocked a shot`;
       break;
-    case "foul":
-      current.fouls += 1;
-      description = `${action.playerName} personal foul (P${current.fouls})`;
+    case "to":
+      current.to += 1;
+      description = `${action.playerName} turned the ball over`;
+      break;
+    case "pf":
+      current.pf += 1;
+      description = `${action.playerName} personal foul (P${current.pf})`;
+      break;
+    case "tf":
+      current.tf += 1;
+      description = `${action.playerName} technical foul (T${current.tf})`;
       break;
   }
 
@@ -244,13 +274,19 @@ export async function undoStat(action: StatAction & { playKey: string }) {
   let pointsToRemove = 0;
 
   switch (action.statType) {
-    case "2pt":
+    case "2ptMake":
       current.pts = Math.max(0, current.pts - 2);
       current.fgm = Math.max(0, current.fgm - 1);
       current.fga = Math.max(0, current.fga - 1);
+      current.twoPm = Math.max(0, current.twoPm - 1);
+      current.twoPa = Math.max(0, current.twoPa - 1);
       pointsToRemove = 2;
       break;
-    case "3pt":
+    case "2ptMiss":
+      current.fga = Math.max(0, current.fga - 1);
+      current.twoPa = Math.max(0, current.twoPa - 1);
+      break;
+    case "3ptMake":
       current.pts = Math.max(0, current.pts - 3);
       current.fgm = Math.max(0, current.fgm - 1);
       current.fga = Math.max(0, current.fga - 1);
@@ -258,13 +294,25 @@ export async function undoStat(action: StatAction & { playKey: string }) {
       current.threePa = Math.max(0, current.threePa - 1);
       pointsToRemove = 3;
       break;
-    case "ft":
+    case "3ptMiss":
+      current.fga = Math.max(0, current.fga - 1);
+      current.threePa = Math.max(0, current.threePa - 1);
+      break;
+    case "ftMake":
       current.pts = Math.max(0, current.pts - 1);
       current.ftm = Math.max(0, current.ftm - 1);
       current.fta = Math.max(0, current.fta - 1);
       pointsToRemove = 1;
       break;
-    case "reb":
+    case "ftMiss":
+      current.fta = Math.max(0, current.fta - 1);
+      break;
+    case "oreb":
+      current.oreb = Math.max(0, current.oreb - 1);
+      current.reb = Math.max(0, current.reb - 1);
+      break;
+    case "dreb":
+      current.dreb = Math.max(0, current.dreb - 1);
       current.reb = Math.max(0, current.reb - 1);
       break;
     case "ast":
@@ -276,8 +324,14 @@ export async function undoStat(action: StatAction & { playKey: string }) {
     case "blk":
       current.blk = Math.max(0, current.blk - 1);
       break;
-    case "foul":
-      current.fouls = Math.max(0, current.fouls - 1);
+    case "to":
+      current.to = Math.max(0, current.to - 1);
+      break;
+    case "pf":
+      current.pf = Math.max(0, current.pf - 1);
+      break;
+    case "tf":
+      current.tf = Math.max(0, current.tf - 1);
       break;
   }
 

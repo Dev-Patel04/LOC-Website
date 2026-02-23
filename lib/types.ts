@@ -3,6 +3,7 @@ export interface Team {
   name: string;
   shortName: string;
   color?: string;
+  division?: string;
 }
 
 export interface Player {
@@ -29,17 +30,23 @@ export interface Game {
 
 export interface PlayerGameStats {
   pts: number;
-  reb: number;
-  ast: number;
-  stl: number;
-  blk: number;
   fgm: number;
   fga: number;
+  twoPm: number;
+  twoPa: number;
   threePm: number;
   threePa: number;
   ftm: number;
   fta: number;
-  fouls: number;
+  reb: number;
+  oreb: number;
+  dreb: number;
+  ast: number;
+  stl: number;
+  blk: number;
+  to: number;
+  pf: number;
+  tf: number;
 }
 
 export interface Play {
@@ -57,15 +64,21 @@ export interface Play {
 
 export const DEFAULT_STATS: PlayerGameStats = {
   pts: 0,
-  reb: 0,
-  ast: 0,
-  stl: 0,
-  blk: 0,
   fgm: 0,
   fga: 0,
+  twoPm: 0,
+  twoPa: 0,
   threePm: 0,
   threePa: 0,
   ftm: 0,
   fta: 0,
-  fouls: 0,
+  reb: 0,
+  oreb: 0,
+  dreb: 0,
+  ast: 0,
+  stl: 0,
+  blk: 0,
+  to: 0,
+  pf: 0,
+  tf: 0,
 };

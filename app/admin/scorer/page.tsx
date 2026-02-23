@@ -160,11 +160,10 @@ export default function ScorerPage() {
             setSelectedSide("home");
             setSelectedPlayerId("");
           }}
-          className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
-            selectedSide === "home"
+          className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${selectedSide === "home"
               ? "bg-loc-accent text-white"
               : "bg-loc-card text-loc-muted"
-          }`}
+            }`}
         >
           {homeTeam?.name || "Home"} (HOME)
         </button>
@@ -173,42 +172,50 @@ export default function ScorerPage() {
             setSelectedSide("away");
             setSelectedPlayerId("");
           }}
-          className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
-            selectedSide === "away"
+          className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${selectedSide === "away"
               ? "bg-loc-accent text-white"
               : "bg-loc-card text-loc-muted"
-          }`}
+            }`}
         >
           {awayTeam?.name || "Away"} (AWAY)
         </button>
       </div>
 
       {/* Scoring buttons */}
-      <div className="grid grid-cols-3 gap-2">
-        <StatButton label="+2" sublabel="PTS" onClick={() => handleStatAction("2pt")} disabled={!selectedPlayerId || isRecording} />
-        <StatButton label="+3" sublabel="PTS" onClick={() => handleStatAction("3pt")} disabled={!selectedPlayerId || isRecording} />
-        <StatButton label="FT" sublabel="MADE" onClick={() => handleStatAction("ft")} disabled={!selectedPlayerId || isRecording} />
+      <div className="grid grid-cols-4 gap-2 mb-2">
+        <StatButton label="2PT" sublabel="MAKE" onClick={() => handleStatAction("2ptMake")} disabled={!selectedPlayerId || isRecording} />
+        <StatButton label="3PT" sublabel="MAKE" onClick={() => handleStatAction("3ptMake")} disabled={!selectedPlayerId || isRecording} />
+        <StatButton label="FT" sublabel="MAKE" onClick={() => handleStatAction("ftMake")} disabled={!selectedPlayerId || isRecording} />
+        <StatButton label="OREB" sublabel="BOARD" variant="secondary" onClick={() => handleStatAction("oreb")} disabled={!selectedPlayerId || isRecording} />
+
+        <StatButton label="2PT" sublabel="MISS" variant="danger" onClick={() => handleStatAction("2ptMiss")} disabled={!selectedPlayerId || isRecording} />
+        <StatButton label="3PT" sublabel="MISS" variant="danger" onClick={() => handleStatAction("3ptMiss")} disabled={!selectedPlayerId || isRecording} />
+        <StatButton label="FT" sublabel="MISS" variant="danger" onClick={() => handleStatAction("ftMiss")} disabled={!selectedPlayerId || isRecording} />
+        <StatButton label="DREB" sublabel="BOARD" variant="secondary" onClick={() => handleStatAction("dreb")} disabled={!selectedPlayerId || isRecording} />
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        <StatButton label="REB" sublabel="BOARD" variant="secondary" onClick={() => handleStatAction("reb")} disabled={!selectedPlayerId || isRecording} />
+      <div className="grid grid-cols-4 gap-2 mb-2">
         <StatButton label="AST" sublabel="DIME" variant="secondary" onClick={() => handleStatAction("ast")} disabled={!selectedPlayerId || isRecording} />
         <StatButton label="STL" sublabel="SWIPE" variant="secondary" onClick={() => handleStatAction("stl")} disabled={!selectedPlayerId || isRecording} />
+        <StatButton label="BLK" sublabel="BLOCK" variant="secondary" onClick={() => handleStatAction("blk")} disabled={!selectedPlayerId || isRecording} />
+        <StatButton label="TO" sublabel="TURN" variant="danger" onClick={() => handleStatAction("to")} disabled={!selectedPlayerId || isRecording} />
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        <StatButton label="BLK" sublabel="BLOCK" variant="secondary" onClick={() => handleStatAction("blk")} disabled={!selectedPlayerId || isRecording} />
-        <StatButton label="FOUL" sublabel="PF" variant="danger" onClick={() => handleStatAction("foul")} disabled={!selectedPlayerId || isRecording} />
-        <button
-          onClick={handleUndo}
-          disabled={undoStack.length === 0}
-          className="flex flex-col items-center justify-center py-4 rounded-xl bg-loc-card border border-loc-border text-loc-muted hover:text-white hover:border-loc-accent/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          <svg className="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-          </svg>
-          <span className="text-[10px] font-medium uppercase tracking-wider">Undo</span>
-        </button>
+      <div className="grid grid-cols-4 gap-2">
+        <StatButton label="PF" sublabel="FOUL" variant="danger" onClick={() => handleStatAction("pf")} disabled={!selectedPlayerId || isRecording} />
+        <StatButton label="TF" sublabel="TECH" variant="danger" onClick={() => handleStatAction("tf")} disabled={!selectedPlayerId || isRecording} />
+        <div className="col-span-2">
+          <button
+            onClick={handleUndo}
+            disabled={undoStack.length === 0}
+            className="w-full flex flex-col items-center justify-center py-4 rounded-xl bg-loc-card border border-loc-border text-loc-muted hover:text-white hover:border-loc-accent/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <svg className="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+            </svg>
+            <span className="text-[10px] font-medium uppercase tracking-wider">Undo</span>
+          </button>
+        </div>
       </div>
 
       {/* Player list */}
@@ -229,11 +236,10 @@ export default function ScorerPage() {
               <button
                 key={p.id}
                 onClick={() => setSelectedPlayerId(isSelected ? "" : p.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
-                  isSelected
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${isSelected
                     ? "bg-loc-accent/10 border-loc-accent"
                     : "bg-loc-card border-loc-border hover:border-loc-accent/30"
-                }`}
+                  }`}
               >
                 <span className="text-2xl font-bold text-loc-accent tabular-nums w-10 text-center">
                   {p.number}
@@ -247,9 +253,8 @@ export default function ScorerPage() {
                   </p>
                 </div>
                 <div
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                    isSelected ? "border-loc-accent bg-loc-accent" : "border-loc-muted"
-                  }`}
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${isSelected ? "border-loc-accent bg-loc-accent" : "border-loc-muted"
+                    }`}
                 >
                   {isSelected && (
                     <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">

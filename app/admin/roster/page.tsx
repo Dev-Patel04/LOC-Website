@@ -120,6 +120,7 @@ function TeamForm({
 }) {
   const [name, setName] = useState(team?.name || "");
   const [shortName, setShortName] = useState(team?.shortName || "");
+  const [division, setDivision] = useState(team?.division || "");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,9 +129,9 @@ function TeamForm({
     setLoading(true);
     try {
       if (team) {
-        await updateTeam(team.id, { name: name.trim(), shortName: shortName.trim().toUpperCase() });
+        await updateTeam(team.id, { name: name.trim(), shortName: shortName.trim().toUpperCase(), division: division.trim() });
       } else {
-        await createTeam({ name: name.trim(), shortName: shortName.trim().toUpperCase() });
+        await createTeam({ name: name.trim(), shortName: shortName.trim().toUpperCase(), division: division.trim() });
       }
       onSave();
     } finally {
@@ -152,14 +153,22 @@ function TeamForm({
       </div>
       <div>
         <label className="block text-xs font-medium text-loc-muted uppercase tracking-wider mb-1">Short Name (3 letters)</label>
-        <input
-          value={shortName}
-          onChange={(e) => setShortName(e.target.value.slice(0, 4))}
-          required
-          placeholder="e.g. STL"
-          maxLength={4}
-          className="w-full px-3 py-2 rounded-lg bg-loc-bg border border-loc-border text-white text-sm uppercase focus:outline-none focus:border-loc-accent"
-        />
+        <div className="flex gap-2">
+          <input
+            value={shortName}
+            onChange={(e) => setShortName(e.target.value.slice(0, 4))}
+            required
+            placeholder="e.g. STL"
+            maxLength={4}
+            className="flex-1 px-3 py-2 rounded-lg bg-loc-bg border border-loc-border text-white text-sm uppercase focus:outline-none focus:border-loc-accent"
+          />
+          <input
+            value={division}
+            onChange={(e) => setDivision(e.target.value)}
+            placeholder="Division (e.g. East)"
+            className="flex-1 px-3 py-2 rounded-lg bg-loc-bg border border-loc-border text-white text-sm focus:outline-none focus:border-loc-accent"
+          />
+        </div>
       </div>
       <div className="flex gap-2">
         <button type="submit" disabled={loading} className="flex-1 py-2 rounded-lg bg-loc-accent text-white text-xs font-semibold disabled:opacity-50">
@@ -194,7 +203,7 @@ function TeamCard({
         <span className="text-xs font-bold text-loc-accent">{team.shortName}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold">{team.name}</p>
+        <p className="text-sm font-semibold">{team.name} {team.division && <span className="text-xs text-loc-muted font-normal ml-1">({team.division})</span>}</p>
         <p className="text-[11px] text-loc-muted">{playerCount} player{playerCount !== 1 ? "s" : ""}</p>
       </div>
       <div className="flex items-center gap-2">
