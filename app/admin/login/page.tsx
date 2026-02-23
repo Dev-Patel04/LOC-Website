@@ -24,8 +24,10 @@ function LoginForm() {
       const cred = await signIn(email, password);
       setSessionCookie(cred.user.uid);
       router.push(redirect);
-    } catch {
-      setError("Invalid email or password");
+    } catch (err: any) {
+      console.error("Login error:", err);
+      // Give the exact Firebase error message string if available
+      setError(err.message || "Invalid email or password");
     } finally {
       setLoading(false);
     }
