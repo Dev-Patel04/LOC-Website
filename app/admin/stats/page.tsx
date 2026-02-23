@@ -43,19 +43,27 @@ export default function AdminStatsPage() {
   for (const [, gameStats] of gameEntries) {
     for (const [playerId, s] of Object.entries(gameStats as Record<string, PlayerGameStats>)) {
       if (!relevantStats[playerId]) {
-        relevantStats[playerId] = { pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, fgm: 0, fga: 0, threePm: 0, threePa: 0, ftm: 0, fta: 0, fouls: 0 };
+        relevantStats[playerId] = { pts: 0, fgm: 0, fga: 0, twoPm: 0, twoPa: 0, threePm: 0, threePa: 0, ftm: 0, fta: 0, reb: 0, oreb: 0, dreb: 0, ast: 0, stl: 0, blk: 0, to: 0, pf: 0, tf: 0 };
       }
       const a = relevantStats[playerId];
       a.pts += s.pts || 0;
+      a.fgm += s.fgm || 0;
+      a.fga += s.fga || 0;
+      a.twoPm += s.twoPm || 0;
+      a.twoPa += s.twoPa || 0;
+      a.threePm += s.threePm || 0;
+      a.threePa += s.threePa || 0;
+      a.ftm += s.ftm || 0;
+      a.fta += s.fta || 0;
       a.reb += s.reb || 0;
+      a.oreb += s.oreb || 0;
+      a.dreb += s.dreb || 0;
       a.ast += s.ast || 0;
       a.stl += s.stl || 0;
       a.blk += s.blk || 0;
-      a.fgm += s.fgm || 0;
-      a.fga += s.fga || 0;
-      a.ftm += s.ftm || 0;
-      a.fta += s.fta || 0;
-      a.fouls += s.fouls || 0;
+      a.to += s.to || 0;
+      a.pf += s.pf || 0;
+      a.tf += s.tf || 0;
     }
   }
 
@@ -123,7 +131,7 @@ export default function AdminStatsPage() {
                   <td className="text-center px-1 py-2">{r.stats.blk}</td>
                   <td className="text-center px-1 py-2 text-loc-muted">{r.stats.fgm}/{r.stats.fga}</td>
                   <td className="text-center px-1 py-2 text-loc-muted">{r.stats.ftm}/{r.stats.fta}</td>
-                  <td className="text-center px-1 py-2">{r.stats.fouls}</td>
+                  <td className="text-center px-1 py-2">{r.stats.pf}</td>
                 </tr>
               ))}
             </tbody>
