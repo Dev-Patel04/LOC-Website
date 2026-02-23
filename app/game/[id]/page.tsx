@@ -85,21 +85,19 @@ export default function GameDetailPage() {
       <div className="flex gap-2 mt-4">
         <button
           onClick={() => setSelectedTab("box")}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-            selectedTab === "box"
+          className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${selectedTab === "box"
               ? "bg-loc-accent text-white"
               : "bg-loc-card text-loc-muted border border-loc-border"
-          }`}
+            }`}
         >
           Box Score
         </button>
         <button
           onClick={() => setSelectedTab("plays")}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-            selectedTab === "plays"
+          className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${selectedTab === "plays"
               ? "bg-loc-accent text-white"
               : "bg-loc-card text-loc-muted border border-loc-border"
-          }`}
+            }`}
         >
           Play-by-Play
         </button>
@@ -144,38 +142,58 @@ function TeamBoxScore({
   stats: Record<string, PlayerGameStats>;
 }) {
   return (
-    <div className="bg-loc-card rounded-xl border border-loc-border overflow-hidden">
-      <div className="px-4 py-2.5 bg-loc-card-light border-b border-loc-border">
-        <h4 className="text-xs font-bold uppercase tracking-widest text-loc-muted">{teamName}</h4>
+    <div className="bg-loc-card rounded-xl border border-loc-border overflow-hidden mt-4">
+      <div className="px-4 py-2 bg-loc-card-light/50 border-b border-loc-border">
+        <h4 className="text-sm font-bold uppercase tracking-widest text-loc-muted">{teamName}</h4>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs">
-          <thead>
-            <tr className="text-loc-muted uppercase tracking-wider">
-              <th className="text-left px-3 py-2 font-medium">Player</th>
-              <th className="text-center px-2 py-2 font-medium">PTS</th>
-              <th className="text-center px-2 py-2 font-medium">REB</th>
-              <th className="text-center px-2 py-2 font-medium">AST</th>
-              <th className="text-center px-2 py-2 font-medium">STL</th>
-              <th className="text-center px-2 py-2 font-medium">BLK</th>
-              <th className="text-center px-2 py-2 font-medium">FLS</th>
+      <div className="overflow-x-auto no-scrollbar">
+        <table className="w-full text-sm text-left whitespace-nowrap">
+          <thead className="bg-loc-card-light/20 border-b border-loc-border text-xs text-loc-muted uppercase">
+            <tr>
+              <th className="px-3 py-2 font-medium sticky left-0 z-10 bg-loc-card">Player</th>
+              <th className="px-3 py-2 font-medium">PTS</th>
+              <th className="px-3 py-2 font-medium">FGM</th>
+              <th className="px-3 py-2 font-medium">FGA</th>
+              <th className="px-3 py-2 font-medium">3PM</th>
+              <th className="px-3 py-2 font-medium">3PA</th>
+              <th className="px-3 py-2 font-medium">FTM</th>
+              <th className="px-3 py-2 font-medium">FTA</th>
+              <th className="px-3 py-2 font-medium">REB</th>
+              <th className="px-3 py-2 font-medium">OREB</th>
+              <th className="px-3 py-2 font-medium">AST</th>
+              <th className="px-3 py-2 font-medium">STL</th>
+              <th className="px-3 py-2 font-medium">BLK</th>
+              <th className="px-3 py-2 font-medium">TO</th>
+              <th className="px-3 py-2 font-medium">PF</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-loc-border/40">
             {players.map((p) => {
-              const s = stats[p.id] || { pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, fouls: 0 };
+              const s = stats[p.id] || {
+                pts: 0, fgm: 0, fga: 0, twoPm: 0, twoPa: 0,
+                threePm: 0, threePa: 0, ftm: 0, fta: 0,
+                reb: 0, oreb: 0, dreb: 0, ast: 0, stl: 0, blk: 0, to: 0, pf: 0, tf: 0
+              };
               return (
-                <tr key={p.id} className="border-t border-loc-border/50">
-                  <td className="px-3 py-2 font-medium whitespace-nowrap">
-                    <span className="text-loc-muted mr-1.5">#{p.number}</span>
-                    {p.name.split(" ").pop()}
+                <tr key={p.id} className="hover:bg-loc-card-light/20 transition-colors">
+                  <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-loc-card">
+                    <span className="text-loc-muted text-[10px] w-4 inline-block">{p.number}</span>
+                    <span className="ml-1">{p.name.split(" ").pop()}</span>
                   </td>
-                  <td className="text-center px-2 py-2 font-bold text-loc-green">{s.pts}</td>
-                  <td className="text-center px-2 py-2">{s.reb}</td>
-                  <td className="text-center px-2 py-2">{s.ast}</td>
-                  <td className="text-center px-2 py-2">{s.stl}</td>
-                  <td className="text-center px-2 py-2">{s.blk}</td>
-                  <td className="text-center px-2 py-2">{s.fouls}</td>
+                  <td className="px-3 py-2 font-bold text-white">{s.pts}</td>
+                  <td className="px-3 py-2 text-loc-muted">{s.fgm}</td>
+                  <td className="px-3 py-2 text-loc-muted">{s.fga}</td>
+                  <td className="px-3 py-2 text-loc-muted">{s.threePm}</td>
+                  <td className="px-3 py-2 text-loc-muted">{s.threePa}</td>
+                  <td className="px-3 py-2 text-loc-muted">{s.ftm}</td>
+                  <td className="px-3 py-2 text-loc-muted">{s.fta}</td>
+                  <td className="px-3 py-2 font-bold text-white">{s.reb}</td>
+                  <td className="px-3 py-2 text-loc-muted">{s.oreb}</td>
+                  <td className="px-3 py-2 font-bold text-white">{s.ast}</td>
+                  <td className="px-3 py-2 font-bold text-white">{s.stl}</td>
+                  <td className="px-3 py-2 font-bold text-white">{s.blk}</td>
+                  <td className="px-3 py-2 text-loc-muted">{s.to}</td>
+                  <td className="px-3 py-2 text-loc-muted">{s.pf}</td>
                 </tr>
               );
             })}
