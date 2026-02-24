@@ -27,6 +27,7 @@ export interface Game {
   status: GameStatus;
   date: string;
   isTimerRunning?: boolean;
+  timerEndsAt?: number;
 }
 
 export interface PlayerGameStats {

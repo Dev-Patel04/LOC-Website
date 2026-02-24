@@ -22,6 +22,40 @@ export default function GameDetailPage() {
   const [stats, setStats] = useState<Record<string, PlayerGameStats>>({});
   const [plays, setPlays] = useState<Play[]>([]);
   const [selectedTab, setSelectedTab] = useState<"box" | "plays">("box");
+  const [displayTime, setDisplayTime] = useState("");
+
+  useEffect(() => {
+    if (!game) return;
+    if (!game.isTimerRunning || !game.timerEndsAt) {
+      setDisplayTime(game.timeRemaining);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const differenceMs = game.timerEndsAt! - now;
+
+      if (differenceMs <= 0) {
+        setDisplayTime("0:00");
+        clearInterval(interval);
+        return;
+      }
+
+      const totalSeconds = Math.floor(differenceMs / 1000);
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
+      setDisplayTime(`${m}:${s.toString().padStart(2, "0")}`);
+    }, 1000);
+
+    setDisplayTime((prev) => {
+      const differenceMs = game.timerEndsAt! - Date.now();
+      if (differenceMs <= 0) return "0:00";
+      const totalSeconds = Math.floor(differenceMs / 1000);
+      return `${Math.floor(totalSeconds / 60)}:${(totalSeconds % 60).toString().padStart(2, "0")}`;
+    });
+
+    return () => clearInterval(interval);
+  }, [game?.isTimerRunning, game?.timerEndsAt, game?.timeRemaining, game?.id]);
 
   useEffect(() => {
     const unsubs = [
@@ -74,7 +108,7 @@ export default function GameDetailPage() {
         </div>
         {game.status === "live" && (
           <p className="text-center text-sm text-loc-accent mt-3 font-medium">
-            Q{game.quarter} &mdash; {game.timeRemaining}
+            Q{game.quarter} &mdash; <span className="tabular-nums">{displayTime}</span>
           </p>
         )}
         {game.status === "final" && (
@@ -86,8 +120,8 @@ export default function GameDetailPage() {
         <button
           onClick={() => setSelectedTab("box")}
           className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${selectedTab === "box"
-              ? "bg-loc-accent text-white"
-              : "bg-loc-card text-loc-muted border border-loc-border"
+            ? "bg-loc-accent text-white"
+            : "bg-loc-card text-loc-muted border border-loc-border"
             }`}
         >
           Box Score
@@ -95,8 +129,8 @@ export default function GameDetailPage() {
         <button
           onClick={() => setSelectedTab("plays")}
           className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${selectedTab === "plays"
-              ? "bg-loc-accent text-white"
-              : "bg-loc-card text-loc-muted border border-loc-border"
+            ? "bg-loc-accent text-white"
+            : "bg-loc-card text-loc-muted border border-loc-border"
             }`}
         >
           Play-by-Play

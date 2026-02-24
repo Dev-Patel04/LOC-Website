@@ -69,35 +69,40 @@ export default function ScorerPage() {
 
   const selectedPlayer = players.find((p) => p.id === selectedPlayerId);
 
-  const selectedGameRef = useRef<Game | undefined>(undefined);
-
   useEffect(() => {
-    selectedGameRef.current = selectedGame;
-  }, [selectedGame]);
+    // Only set up local interval if timer is running and we have an end time
+    if (!selectedGame?.isTimerRunning || !selectedGame?.timerEndsAt) return;
 
-  useEffect(() => {
     const interval = setInterval(() => {
-      const game = selectedGameRef.current;
-      if (!game || !game.isTimerRunning) return;
-      const [minStr, secStr] = game.timeRemaining.split(":");
-      let m = parseInt(minStr, 10);
-      let s = parseInt(secStr, 10);
-      if (isNaN(m) || isNaN(s)) return;
-      if (m === 0 && s === 0) {
-        updateGame(game.id, { isTimerRunning: false });
+      const now = Date.now();
+      const differenceMs = selectedGame.timerEndsAt! - now;
+
+      if (differenceMs <= 0) {
+        // Time is up! Stop the timer and set it to 0
+        updateGame(selectedGame.id, {
+          isTimerRunning: false,
+          timeRemaining: "0:00",
+          timerEndsAt: null as any // remove from db
+        });
+        clearInterval(interval);
         return;
       }
-      if (s === 0) {
-        m -= 1;
-        s = 59;
-      } else {
-        s -= 1;
-      }
+
+      // Convert differenceMs to MM:SS
+      const totalSeconds = Math.floor(differenceMs / 1000);
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
       const newTime = `${m}:${s.toString().padStart(2, "0")}`;
-      updateGame(game.id, { timeRemaining: newTime });
+
+      // OPTIMIZATION: We DO NOT call updateGame here every second!
+      // We only update the local state for display purposes, Firebase already knows timerEndsAt.
+      setGames((prev) =>
+        prev.map((g) => (g.id === selectedGame.id ? { ...g, timeRemaining: newTime } : g))
+      );
     }, 1000);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedGame?.isTimerRunning, selectedGame?.timerEndsAt, selectedGame?.id]);
 
   const handleStatAction = useCallback(
     async (statType: StatType) => {
@@ -194,10 +199,31 @@ export default function ScorerPage() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => updateGame(selectedGame.id, { isTimerRunning: !selectedGame.isTimerRunning })}
+              onClick={() => {
+                if (selectedGame.isTimerRunning) {
+                  // PAUSING: Save current timeRemaining and stop timer
+                  updateGame(selectedGame.id, {
+                    isTimerRunning: false,
+                    timerEndsAt: null as any // remove from db
+                  });
+                } else {
+                  // STARTING: Calculate when the timer should end based on current timeRemaining
+                  const [minStr, secStr] = selectedGame.timeRemaining.split(":");
+                  const m = parseInt(minStr, 10) || 0;
+                  const s = parseInt(secStr, 10) || 0;
+                  const totalMs = (m * 60 + s) * 1000;
+
+                  if (totalMs > 0) {
+                    updateGame(selectedGame.id, {
+                      isTimerRunning: true,
+                      timerEndsAt: Date.now() + totalMs
+                    });
+                  }
+                }
+              }}
               className={`px-5 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-colors ${selectedGame.isTimerRunning
-                  ? "bg-red-500/20 border border-red-500/40 text-red-500 hover:bg-red-500/30"
-                  : "bg-loc-accent/20 border border-loc-accent/40 text-loc-accent hover:bg-loc-accent/30"
+                ? "bg-red-500/20 border border-red-500/40 text-red-500 hover:bg-red-500/30"
+                : "bg-loc-accent/20 border border-loc-accent/40 text-loc-accent hover:bg-loc-accent/30"
                 }`}
             >
               {selectedGame.isTimerRunning ? "Pause" : "Start"}
@@ -206,7 +232,11 @@ export default function ScorerPage() {
               onClick={() => {
                 const newTime = window.prompt("Enter new time (MM:SS)", selectedGame.timeRemaining);
                 if (newTime && /^\d{1,2}:\d{2}$/.test(newTime)) {
-                  updateGame(selectedGame.id, { timeRemaining: newTime, isTimerRunning: false });
+                  updateGame(selectedGame.id, {
+                    timeRemaining: newTime,
+                    isTimerRunning: false,
+                    timerEndsAt: null as any
+                  });
                 }
               }}
               className="px-4 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider bg-loc-card-light text-loc-muted hover:text-white transition-colors border border-loc-border"
