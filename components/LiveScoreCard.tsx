@@ -3,22 +3,12 @@
 import { useState, useEffect } from "react";
 import type { Game, Team } from "@/lib/types";
 import Link from "next/link";
+import TeamLogo from "@/components/TeamLogo";
 
 interface LiveScoreCardProps {
   game: Game;
   homeTeam: Team | undefined;
   awayTeam: Team | undefined;
-}
-
-function TeamLogo({ team, className }: { team: Team | undefined; className?: string }) {
-  const initials = team ? team.shortName.slice(0, 2).toUpperCase() : "??";
-  return (
-    <div
-      className={`w-16 h-16 rounded-xl bg-loc-card-light border border-loc-border flex items-center justify-center ${className || ""}`}
-    >
-      <span className="text-lg font-bold text-loc-muted">{initials}</span>
-    </div>
-  );
 }
 
 function QuarterProgress({ quarter }: { quarter: number }) {

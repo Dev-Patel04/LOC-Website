@@ -11,6 +11,7 @@ import {
   subscribeToRecentPlays,
 } from "@/lib/gameService";
 import type { Game, Team, Player, PlayerGameStats, Play } from "@/lib/types";
+import TeamLogo from "@/components/TeamLogo";
 
 export default function GameDetailPage() {
   const params = useParams();
@@ -93,13 +94,15 @@ export default function GameDetailPage() {
       <div className="bg-loc-card rounded-2xl border border-loc-border p-6 mt-2">
         <div className="flex items-center justify-between">
           <div className="flex flex-col items-center flex-1">
+            <TeamLogo team={homeTeam} className="w-20 h-20 mb-3" />
             <span className="text-xs uppercase tracking-wider text-loc-muted font-medium">
               {homeTeam?.name || "TBD"}
             </span>
             <span className="text-5xl font-bold mt-1 tabular-nums">{game.homeScore}</span>
           </div>
-          <div className="text-loc-muted text-xl">VS</div>
+          <div className="text-loc-muted text-xl">&mdash;</div>
           <div className="flex flex-col items-center flex-1">
+            <TeamLogo team={awayTeam} className="w-20 h-20 mb-3" />
             <span className="text-xs uppercase tracking-wider text-loc-muted font-medium">
               {awayTeam?.name || "TBD"}
             </span>
