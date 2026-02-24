@@ -56,7 +56,7 @@ export default function GameDetailPage() {
     });
 
     return () => clearInterval(interval);
-  }, [game?.isTimerRunning, game?.timerEndsAt, game?.timeRemaining, game?.id]);
+  }, [game]);
 
   useEffect(() => {
     const unsubs = [

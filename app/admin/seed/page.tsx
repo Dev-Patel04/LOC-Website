@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { getDatabase, ref, set, push } from "firebase/database";
-import { app } from "@/lib/firebase";
+import app from "@/lib/firebase";
 
 const teams = [
     { name: "REXDALE RAPTORS", shortName: "REX", division: "West" },
