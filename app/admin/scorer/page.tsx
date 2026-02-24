@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   subscribeToGames,
   subscribeToTeams,
@@ -68,6 +68,36 @@ export default function ScorerPage() {
   const teamPlayers = players.filter((p) => p.teamId === teamId);
 
   const selectedPlayer = players.find((p) => p.id === selectedPlayerId);
+
+  const selectedGameRef = useRef<Game | undefined>(undefined);
+
+  useEffect(() => {
+    selectedGameRef.current = selectedGame;
+  }, [selectedGame]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const game = selectedGameRef.current;
+      if (!game || !game.isTimerRunning) return;
+      const [minStr, secStr] = game.timeRemaining.split(":");
+      let m = parseInt(minStr, 10);
+      let s = parseInt(secStr, 10);
+      if (isNaN(m) || isNaN(s)) return;
+      if (m === 0 && s === 0) {
+        updateGame(game.id, { isTimerRunning: false });
+        return;
+      }
+      if (s === 0) {
+        m -= 1;
+        s = 59;
+      } else {
+        s -= 1;
+      }
+      const newTime = `${m}:${s.toString().padStart(2, "0")}`;
+      updateGame(game.id, { timeRemaining: newTime });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleStatAction = useCallback(
     async (statType: StatType) => {
@@ -153,6 +183,40 @@ export default function ScorerPage() {
         </select>
       )}
 
+      {/* Timer Controls */}
+      {selectedGame && (
+        <div className="flex items-center justify-between bg-loc-card border border-loc-border rounded-xl p-4">
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-loc-muted uppercase tracking-wider mb-0.5">Quarter {selectedGame.quarter}</span>
+            <span className="text-3xl font-black tabular-nums tracking-widest text-white leading-none">
+              {selectedGame.timeRemaining}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => updateGame(selectedGame.id, { isTimerRunning: !selectedGame.isTimerRunning })}
+              className={`px-5 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider transition-colors ${selectedGame.isTimerRunning
+                  ? "bg-red-500/20 border border-red-500/40 text-red-500 hover:bg-red-500/30"
+                  : "bg-loc-accent/20 border border-loc-accent/40 text-loc-accent hover:bg-loc-accent/30"
+                }`}
+            >
+              {selectedGame.isTimerRunning ? "Pause" : "Start"}
+            </button>
+            <button
+              onClick={() => {
+                const newTime = window.prompt("Enter new time (MM:SS)", selectedGame.timeRemaining);
+                if (newTime && /^\d{1,2}:\d{2}$/.test(newTime)) {
+                  updateGame(selectedGame.id, { timeRemaining: newTime, isTimerRunning: false });
+                }
+              }}
+              className="px-4 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wider bg-loc-card-light text-loc-muted hover:text-white transition-colors border border-loc-border"
+            >
+              Edit Time
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Team toggle */}
       <div className="flex rounded-xl overflow-hidden border border-loc-border">
         <button
@@ -161,8 +225,8 @@ export default function ScorerPage() {
             setSelectedPlayerId("");
           }}
           className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${selectedSide === "home"
-              ? "bg-loc-accent text-white"
-              : "bg-loc-card text-loc-muted"
+            ? "bg-loc-accent text-white"
+            : "bg-loc-card text-loc-muted"
             }`}
         >
           {homeTeam?.name || "Home"} (HOME)
@@ -173,8 +237,8 @@ export default function ScorerPage() {
             setSelectedPlayerId("");
           }}
           className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${selectedSide === "away"
-              ? "bg-loc-accent text-white"
-              : "bg-loc-card text-loc-muted"
+            ? "bg-loc-accent text-white"
+            : "bg-loc-card text-loc-muted"
             }`}
         >
           {awayTeam?.name || "Away"} (AWAY)
@@ -237,8 +301,8 @@ export default function ScorerPage() {
                 key={p.id}
                 onClick={() => setSelectedPlayerId(isSelected ? "" : p.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${isSelected
-                    ? "bg-loc-accent/10 border-loc-accent"
-                    : "bg-loc-card border-loc-border hover:border-loc-accent/30"
+                  ? "bg-loc-accent/10 border-loc-accent"
+                  : "bg-loc-card border-loc-border hover:border-loc-accent/30"
                   }`}
               >
                 <span className="text-2xl font-bold text-loc-accent tabular-nums w-10 text-center">
