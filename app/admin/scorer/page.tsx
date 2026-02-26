@@ -204,6 +204,7 @@ export default function ScorerPage() {
                   // PAUSING: Save current timeRemaining and stop timer
                   updateGame(selectedGame.id, {
                     isTimerRunning: false,
+                    timeRemaining: selectedGame.timeRemaining,
                     timerEndsAt: null as any // remove from db
                   });
                 } else {
